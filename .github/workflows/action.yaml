@@ -1,2 +1,30 @@
 name: push App to DockerHub
 
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repo 
+      uses: actions/checkout@v5
+
+    - name: Lint Python code
+      run: |
+        pip install flake8
+        flake8 app.py
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOCKEN }}
+
+    - name: Build and push Docker Image to DockerHub
+      id: push 
+      uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671
+      with:
+        context: . 
+        file: ./Dockerfile
+        push: true 
